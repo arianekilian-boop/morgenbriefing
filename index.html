@@ -7,120 +7,71 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Morgenbriefing">
 <title>Morgenbriefing</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg:#0e0d0c; --surface:#181714; --surface2:#211f1c; --border:#2e2b27;
-    --accent:#c8323a; --gold:#c9973a; --green:#3a9c6a; --blue:#4a70d4;
-    --text:#e8e4dc; --muted:#7a7568; --faint:#3a3730;
-  }
-  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-  html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-weight:300;min-height:100vh;overflow-x:hidden;}
-  .header{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--border);padding:16px 20px 12px;display:flex;align-items:center;justify-content:space-between;}
-  .header-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;letter-spacing:-0.01em;line-height:1;}
-  .header-date{font-size:10px;color:var(--muted);letter-spacing:0.15em;text-transform:uppercase;margin-top:3px;}
-  .header-status{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);}
-  .status-dot{width:7px;height:7px;border-radius:50%;background:var(--muted);transition:background 0.3s;}
-  .status-dot.live{background:var(--green);box-shadow:0 0 6px var(--green);animation:pulse 2s infinite;}
-  .status-dot.loading{background:var(--gold);animation:pulse 0.8s infinite;}
-  @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
-  .tabs{display:flex;border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;}
-  .tabs::-webkit-scrollbar{display:none;}
-  .tab{flex-shrink:0;padding:10px 18px;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;white-space:nowrap;}
-  .tab.active{color:var(--text);border-bottom-color:var(--accent);}
-  .keywords{padding:10px 20px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--border);}
-  .keywords::-webkit-scrollbar{display:none;}
-  .pill{flex-shrink:0;font-size:10px;padding:4px 10px;border-radius:2px;letter-spacing:0.06em;font-weight:500;white-space:nowrap;}
-  .pill.theme{background:rgba(200,50,58,0.15);color:#e87070;border:1px solid rgba(200,50,58,0.3);}
-  .pill.party{background:rgba(201,151,58,0.15);color:#d4a84a;border:1px solid rgba(201,151,58,0.3);}
-  .briefing-btn-wrap{padding:16px 20px 12px;}
-  .briefing-btn{width:100%;background:var(--accent);color:white;border:none;padding:15px 24px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all 0.2s;}
-  .briefing-btn:active{transform:scale(0.98);}
-  .briefing-btn:disabled{background:var(--faint);color:var(--muted);cursor:not-allowed;}
-  .progress-bar{height:2px;background:var(--border);margin:0 20px;overflow:hidden;display:none;}
-  .progress-bar.visible{display:block;}
-  .progress-fill{height:100%;background:var(--gold);width:0%;transition:width 0.4s ease;}
-  .page{display:none;}.page.active{display:block;}
-  .sections{padding:0 0 80px;}
-  .section{border-bottom:1px solid var(--border);opacity:0;transform:translateY(10px);transition:opacity 0.4s ease,transform 0.4s ease;}
-  .section.visible{opacity:1;transform:translateY(0);}
-  .section-header{padding:14px 20px 10px;display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;}
-  .section-icon{font-size:15px;}
-  .section-title{font-family:'Playfair Display',serif;font-size:14px;font-weight:500;flex:1;}
-  .section-badge{font-size:10px;padding:2px 8px;border-radius:2px;font-weight:500;letter-spacing:0.05em;}
-  .badge-red{background:rgba(200,50,58,0.2);color:#e87070;}
-  .badge-gold{background:rgba(201,151,58,0.2);color:#d4a84a;}
-  .badge-green{background:rgba(58,156,106,0.2);color:#5fc492;}
-  .badge-blue{background:rgba(74,112,212,0.2);color:#7090e8;}
-  .section-chevron{color:var(--muted);font-size:12px;transition:transform 0.2s;}
-  .section.collapsed .section-chevron{transform:rotate(-90deg);}
-  .section-body{padding:0 20px 14px;}
-  .section.collapsed .section-body{display:none;}
-  .summary-card{background:var(--surface);border:1px solid var(--border);padding:14px;margin-bottom:10px;position:relative;}
-  .summary-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent);}
-  .summary-card.gold::before{background:var(--gold);}
-  .summary-card.green::before{background:var(--green);}
-  .summary-card.blue::before{background:var(--blue);}
-  .summary-label{font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-bottom:7px;}
-  .summary-text{font-size:12px;line-height:1.7;color:var(--text);}
-  .summary-text strong{color:white;font-weight:500;}
-  .skeleton{background:linear-gradient(90deg,var(--surface) 25%,var(--surface2) 50%,var(--surface) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:2px;height:11px;margin-bottom:7px;}
-  @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
-  .skeleton.short{width:55%;}.skeleton.medium{width:78%;}
-  .persons-page{padding:16px 20px 80px;}
-  .person-group{margin-bottom:20px;}
-  .person-group-title{font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border);font-weight:500;}
-  .person-card{background:var(--surface);border:1px solid var(--border);padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:border-color 0.2s;}
-  .person-card:active{border-color:var(--accent);}
-  .person-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;font-weight:500;}
-  .avatar-spd{background:rgba(200,50,58,0.2);color:#e87070;}
-  .avatar-cdu{background:rgba(201,151,58,0.15);color:#d4a84a;}
-  .avatar-csu{background:rgba(74,112,212,0.15);color:#7090e8;}
-  .person-info{flex:1;min-width:0;}
-  .person-name{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .person-role{font-size:10px;color:var(--muted);margin-top:2px;line-height:1.4;}
-  .person-tag{font-size:9px;padding:2px 6px;border-radius:2px;margin-top:4px;display:inline-block;}
-  .tag-spd{background:rgba(200,50,58,0.15);color:#e87070;}
-  .tag-cdu{background:rgba(201,151,58,0.15);color:#d4a84a;}
-  .tag-csu{background:rgba(74,112,212,0.15);color:#7090e8;}
-  .person-arrow{font-size:14px;color:var(--muted);flex-shrink:0;}
-  .person-search-bar{display:flex;gap:8px;margin-bottom:16px;}
-  .person-search-input{flex:1;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:9px 12px;font-family:'DM Sans',sans-serif;font-size:12px;outline:none;}
-  .person-search-input:focus{border-color:var(--accent);}
-  .person-search-input::placeholder{color:var(--muted);}
-  .search-go-btn{background:var(--accent);color:white;border:none;padding:9px 16px;font-size:11px;font-weight:500;letter-spacing:0.08em;cursor:pointer;text-transform:uppercase;font-family:'DM Sans',sans-serif;}
-  .overlay{position:fixed;inset:0;background:var(--bg);z-index:200;overflow-y:auto;display:none;}
-  .overlay.open{display:block;}
-  .overlay-header{position:sticky;top:0;background:var(--bg);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;gap:12px;}
-  .overlay-back{background:none;border:none;color:var(--accent);font-size:13px;cursor:pointer;letter-spacing:0.05em;font-family:'DM Sans',sans-serif;}
-  .overlay-title{font-family:'Playfair Display',serif;font-size:16px;font-weight:500;}
-  .overlay-content{padding:20px 20px 80px;}
-  .overlay-loading{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;}
-  .overlay-result{font-size:13px;line-height:1.75;color:var(--text);}
-  .overlay-result strong{color:white;font-weight:500;}
-  .overlay-result h3{font-family:'Playfair Display',serif;font-size:15px;margin:16px 0 8px;color:var(--gold);}
-  .overlay-result p{margin-top:8px;}
-  .sources-page{padding:16px 20px 80px;}
-  .source-group-title{font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border);margin-top:18px;}
-  .source-group-title:first-child{margin-top:0;}
-  .source-link{display:block;background:var(--surface);border:1px solid var(--border);padding:12px 14px;margin-bottom:8px;text-decoration:none;color:var(--text);transition:border-color 0.2s;}
-  .source-link:active{border-color:var(--accent);}
-  .source-link-name{font-size:13px;font-weight:500;}
-  .source-link-desc{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.4;}
-  .source-link-url{font-size:10px;color:var(--accent);margin-top:4px;}
-  .timer-bar{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;gap:12px;z-index:100;}
-  .timer-label{font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);white-space:nowrap;}
-  .timer-track{flex:1;height:3px;background:var(--border);overflow:hidden;}
-  .timer-fill{height:100%;background:var(--accent);width:0%;transition:width 1s linear;}
-  .timer-count{font-family:'Playfair Display',serif;font-size:16px;color:var(--gold);min-width:36px;text-align:right;}
-  .welcome{padding:32px 20px;text-align:center;}
-  .welcome-title{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;margin-bottom:8px;background:linear-gradient(135deg,var(--text),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-  .welcome-sub{font-size:12px;color:var(--muted);line-height:1.6;max-width:280px;margin:0 auto 24px;}
-  .welcome-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;text-align:left;}
-  .welcome-card{background:var(--surface);border:1px solid var(--border);padding:12px 14px;}
-  .welcome-card-title{font-size:11px;font-weight:500;margin-bottom:3px;}
-  .welcome-card-desc{font-size:10px;color:var(--muted);line-height:1.5;}
-  .sources-note{padding:10px 20px;font-size:10px;color:var(--muted);line-height:1.6;}
+:root{--bg:#0e0d0c;--surface:#181714;--surface2:#211f1c;--border:#2e2b27;--accent:#c8323a;--gold:#c9973a;--green:#3a9c6a;--blue:#4a70d4;--text:#e8e4dc;--muted:#7a7568;}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-weight:300;min-height:100vh;overflow-x:hidden;}
+.header{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;}
+.header-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;letter-spacing:-0.01em;}
+.header-date{font-size:10px;color:var(--muted);letter-spacing:0.12em;text-transform:uppercase;margin-top:3px;}
+.header-time{font-family:'Playfair Display',serif;font-size:22px;color:var(--gold);}
+.tabs{display:flex;border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab{flex-shrink:0;padding:10px 18px;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;white-space:nowrap;}
+.tab.active{color:var(--text);border-bottom-color:var(--accent);}
+.page{display:none;padding-bottom:40px;}.page.active{display:block;}
+.timer-strip{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;}
+.timer-step{flex:1;text-align:center;padding:6px 4px;position:relative;}
+.timer-step::after{content:'›';position:absolute;right:-2px;top:50%;transform:translateY(-50%);color:var(--border);font-size:16px;}
+.timer-step:last-child::after{display:none;}
+.timer-min{font-family:'Playfair Display',serif;font-size:16px;color:var(--accent);display:block;line-height:1;}
+.timer-label{font-size:9px;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;margin-top:2px;display:block;}
+.section{margin-bottom:4px;}
+.section-head{padding:12px 20px 8px;display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;}
+.section-icon{font-size:14px;}
+.section-title{font-family:'Playfair Display',serif;font-size:14px;font-weight:500;flex:1;}
+.section-badge{font-size:9px;padding:2px 7px;border-radius:2px;font-weight:500;letter-spacing:0.05em;}
+.badge-red{background:rgba(200,50,58,0.2);color:#e87070;}
+.badge-gold{background:rgba(201,151,58,0.2);color:#d4a84a;}
+.badge-blue{background:rgba(74,112,212,0.2);color:#7090e8;}
+.badge-green{background:rgba(58,156,106,0.2);color:#5fc492;}
+.chevron{color:var(--muted);font-size:11px;transition:transform 0.2s;}
+.section.collapsed .chevron{transform:rotate(-90deg);}
+.section-body{padding:0 20px 12px;}
+.section.collapsed .section-body{display:none;}
+.search-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px;}
+.search-btn{display:block;background:var(--surface);border:1px solid var(--border);padding:10px 12px;text-decoration:none;color:var(--text);transition:border-color 0.15s;cursor:pointer;}
+.search-btn:active{border-color:var(--accent);}
+.search-btn-label{font-size:11px;font-weight:500;display:block;margin-bottom:2px;}
+.search-btn-sub{font-size:10px;color:var(--muted);display:block;line-height:1.4;}
+.search-btn-icon{font-size:16px;display:block;margin-bottom:4px;}
+.search-btn.wide{grid-column:span 2;}
+.search-btn.accent-border{border-color:rgba(200,50,58,0.4);}
+.search-btn.gold-border{border-color:rgba(201,151,58,0.3);}
+.person-card{background:var(--surface);border:1px solid var(--border);padding:11px 14px;margin-bottom:7px;display:flex;align-items:center;gap:11px;text-decoration:none;color:var(--text);transition:border-color 0.15s;}
+.person-card:active{border-color:var(--accent);}
+.person-avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;font-weight:500;}
+.av-spd{background:rgba(200,50,58,0.2);color:#e87070;}
+.av-cdu{background:rgba(201,151,58,0.15);color:#d4a84a;}
+.av-csu{background:rgba(74,112,212,0.15);color:#7090e8;}
+.person-info{flex:1;min-width:0;}
+.person-name{font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.person-role{font-size:10px;color:var(--muted);margin-top:1px;line-height:1.4;}
+.person-tag{font-size:9px;padding:1px 5px;border-radius:2px;margin-top:3px;display:inline-block;}
+.tag-spd{background:rgba(200,50,58,0.15);color:#e87070;}
+.tag-cdu{background:rgba(201,151,58,0.15);color:#d4a84a;}
+.tag-csu{background:rgba(74,112,212,0.15);color:#7090e8;}
+.person-arrow{color:var(--muted);font-size:16px;flex-shrink:0;}
+.group-title{font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin:14px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--border);font-weight:500;}
+.group-title:first-child{margin-top:0;}
+.source-link{display:block;background:var(--surface);border:1px solid var(--border);padding:11px 14px;margin-bottom:7px;text-decoration:none;color:var(--text);transition:border-color 0.15s;}
+.source-link:active{border-color:var(--accent);}
+.source-name{font-size:12px;font-weight:500;}
+.source-desc{font-size:10px;color:var(--muted);margin-top:2px;line-height:1.4;}
+.source-url{font-size:10px;color:var(--accent);margin-top:3px;}
+.divider{height:1px;background:var(--border);margin:4px 0;}
+.page-pad{padding:14px 20px 0;}
 </style>
 </head>
 <body>
@@ -129,10 +80,7 @@
     <div class="header-title">Morgenbriefing</div>
     <div class="header-date" id="headerDate">—</div>
   </div>
-  <div class="header-status">
-    <div class="status-dot" id="statusDot"></div>
-    <span id="statusText">Bereit</span>
-  </div>
+  <div class="header-time" id="headerTime">—</div>
 </div>
 <div class="tabs">
   <div class="tab active" onclick="showPage('briefing',this)">📋 Briefing</div>
@@ -140,106 +88,135 @@
   <div class="tab" onclick="showPage('quellen',this)">🔗 Quellen</div>
 </div>
 <div class="page active" id="page-briefing">
-  <div class="keywords">
-    <span class="pill theme">Wirtschaftspolitik</span>
-    <span class="pill theme">Arbeitsmarkt</span>
-    <span class="pill theme">Entbürokratisierung</span>
-    <span class="pill theme">Große Koalition</span>
-    <span class="pill party">SPD</span>
-    <span class="pill party">SPD-Fraktion</span>
-    <span class="pill party">CDU</span>
-  </div>
-  <div class="briefing-btn-wrap">
-    <button class="briefing-btn" id="mainBtn" onclick="startBriefing()">
-      <span>◎</span><span id="btnText">Briefing starten</span>
-    </button>
-  </div>
-  <div class="progress-bar" id="progressBar"><div class="progress-fill" id="progressFill"></div></div>
-  <div class="sections" id="sectionsArea">
-    <div class="welcome" id="welcomeState">
-      <div class="welcome-title">Guten Morgen.</div>
-      <div class="welcome-sub">KI-gestütztes Briefing zur politischen Lage — in 15 Minuten auf dem neuesten Stand.</div>
-      <div class="welcome-grid">
-        <div class="welcome-card"><div class="welcome-card-title">📊 Wirtschaft & Arbeit</div><div class="welcome-card-desc">Konjunktur, Mindestlohn, Entbürokratisierung</div></div>
-        <div class="welcome-card"><div class="welcome-card-title">🏛️ Koalition & Parteien</div><div class="welcome-card-desc">SPD, CDU, GroKo-Dynamiken</div></div>
-        <div class="welcome-card"><div class="welcome-card-title">🌍 Europa & Welt</div><div class="welcome-card-desc">EU, internationale Wirtschaftspolitik</div></div>
-        <div class="welcome-card"><div class="welcome-card-title">💬 Debattenlage</div><div class="welcome-card-desc">Was diskutiert Berlin heute?</div></div>
-      </div>
+<div class="timer-strip">
+  <div class="timer-step"><span class="timer-min">3'</span><span class="timer-label">Pulse</span></div>
+  <div class="timer-step"><span class="timer-min">5'</span><span class="timer-label">Medien</span></div>
+  <div class="timer-step"><span class="timer-min">4'</span><span class="timer-label">Social</span></div>
+  <div class="timer-step"><span class="timer-min">3'</span><span class="timer-label">Suche</span></div>
+</div>
+<div class="section" id="sec-pulse">
+  <div class="section-head" onclick="toggle('pulse')"><span class="section-icon">⚡</span><span class="section-title">Pulse-Check</span><span class="section-badge badge-red">Min. 1–3</span><span class="chevron">▾</span></div>
+  <div class="section-body">
+    <div class="search-grid">
+      <a class="search-btn accent-border" href="https://www.tagesschau.de" target="_blank"><span class="search-btn-icon">📺</span><span class="search-btn-label">Tagesschau</span><span class="search-btn-sub">Top-Meldungen des Tages</span></a>
+      <a class="search-btn" href="https://news.google.com/topics/CAAqJQgKIh9DQkFTRVFvSUwyMHZNRFZxYUdjU0JXVnVMVWRDR2dBUAE?hl=de&gl=DE&ceid=DE:de" target="_blank"><span class="search-btn-icon">🔍</span><span class="search-btn-label">Google News DE</span><span class="search-btn-sub">Tagesagenda scannen</span></a>
+      <a class="search-btn wide" href="https://www.politico.eu/newsletter/playbook/" target="_blank"><span class="search-btn-label">🌍 Politico Europe Playbook</span><span class="search-btn-sub">EU-Pulse täglich 6 Uhr — Newsletter abonnieren</span></a>
     </div>
   </div>
+</div>
+<div class="divider"></div>
+<div class="section" id="sec-wirtschaft">
+  <div class="section-head" onclick="toggle('wirtschaft')"><span class="section-icon">📊</span><span class="section-title">Wirtschaft & Arbeitsmarkt</span><span class="section-badge badge-red">Kernthema</span><span class="chevron">▾</span></div>
+  <div class="section-body">
+    <div class="search-grid">
+      <a class="search-btn" href="https://www.google.com/search?q=Wirtschaftspolitik+Deutschland+aktuell&tbm=nws" target="_blank"><span class="search-btn-label">Wirtschaftspolitik aktuell</span><span class="search-btn-sub">Google News Suche</span></a>
+      <a class="search-btn" href="https://www.google.com/search?q=Arbeitsmarkt+Deutschland+aktuell&tbm=nws" target="_blank"><span class="search-btn-label">Arbeitsmarkt aktuell</span><span class="search-btn-sub">Google News Suche</span></a>
+      <a class="search-btn" href="https://www.handelsblatt.com/politik" target="_blank"><span class="search-btn-label">Handelsblatt Politik</span><span class="search-btn-sub">Tiefste wirtschaftspol. Analyse</span></a>
+      <a class="search-btn" href="https://www.google.com/search?q=Mindestlohn+Bürgergeld+2025&tbm=nws" target="_blank"><span class="search-btn-label">Mindestlohn · Bürgergeld</span><span class="search-btn-sub">Aktuelle Debatte</span></a>
+    </div>
+  </div>
+</div>
+<div class="divider"></div>
+<div class="section" id="sec-buerokratie">
+  <div class="section-head" onclick="toggle('buerokratie')"><span class="section-icon">✂️</span><span class="section-title">Entbürokratisierung</span><span class="section-badge badge-gold">Fokus</span><span class="chevron">▾</span></div>
+  <div class="section-body">
+    <div class="search-grid">
+      <a class="search-btn gold-border" href="https://www.google.com/search?q=Entbürokratisierung+Bundesregierung+aktuell&tbm=nws" target="_blank"><span class="search-btn-label">Entbürokratisierung aktuell</span><span class="search-btn-sub">Google News Suche</span></a>
+      <a class="search-btn" href="https://www.google.com/search?q=Bürokratieabbau+Gesetz+2025&tbm=nws" target="_blank"><span class="search-btn-label">Bürokratieabbau Gesetz</span><span class="search-btn-sub">Aktuelle Beschlüsse</span></a>
+      <a class="search-btn wide" href="https://www.google.com/search?q=Verwaltungsreform+Deutschland+Koalition&tbm=nws" target="_blank"><span class="search-btn-label">Verwaltungsreform · Koalition</span><span class="search-btn-sub">Positionen von SPD und CDU</span></a>
+    </div>
+  </div>
+</div>
+<div class="divider"></div>
+<div class="section" id="sec-koalition">
+  <div class="section-head" onclick="toggle('koalition')"><span class="section-icon">🏛️</span><span class="section-title">Große Koalition & Parteien</span><span class="section-badge badge-gold">SPD · CDU</span><span class="chevron">▾</span></div>
+  <div class="section-body">
+    <div class="search-grid">
+      <a class="search-btn" href="https://www.google.com/search?q=SPD+Bundestagsfraktion+aktuell&tbm=nws" target="_blank"><span class="search-btn-label">SPD Fraktion aktuell</span><span class="search-btn-sub">Miersch, Positionen</span></a>
+      <a class="search-btn" href="https://www.google.com/search?q=CDU+Merz+aktuell&tbm=nws" target="_blank"><span class="search-btn-label">CDU · Merz aktuell</span><span class="search-btn-sub">Positionen, Beschlüsse</span></a>
+      <a class="search-btn gold-border" href="https://www.google.com/search?q=Große+Koalition+Streit+Einigung&tbm=nws" target="_blank"><span class="search-btn-label">GroKo Streit · Einigung</span><span class="search-btn-sub">Koalitionsdynamiken</span></a>
+      <a class="search-btn" href="https://www.bundestag.de/tagesordnung" target="_blank"><span class="search-btn-label">🏛 Bundestag heute</span><span class="search-btn-sub">Tagesordnung direkt</span></a>
+      <a class="search-btn wide" href="https://www.spdfraktion.de" target="_blank"><span class="search-btn-label">SPD-Fraktionswebsite</span><span class="search-btn-sub">Pressemitteilungen, Positionen, Vorstand</span></a>
+    </div>
+  </div>
+</div>
+<div class="divider"></div>
+<div class="section" id="sec-europa">
+  <div class="section-head" onclick="toggle('europa')"><span class="section-icon">🌍</span><span class="section-title">Europa & Welt</span><span class="section-badge badge-blue">International</span><span class="chevron">▾</span></div>
+  <div class="section-body">
+    <div class="search-grid">
+      <a class="search-btn" href="https://www.google.com/search?q=EU+Wirtschaftspolitik+Deutschland&tbm=nws" target="_blank"><span class="search-btn-label">EU · Deutschland aktuell</span><span class="search-btn-sub">Europäische Wirtschaftspolitik</span></a>
+      <a class="search-btn" href="https://www.politico.eu" target="_blank"><span class="search-btn-label">Politico Europe</span><span class="search-btn-sub">EU-Nachrichtenlage</span></a>
+      <a class="search-btn" href="https://www.ft.com/europe" target="_blank"><span class="search-btn-label">Financial Times Europe</span><span class="search-btn-sub">Internationale Einordnung</span></a>
+      <a class="search-btn" href="https://www.google.com/search?q=Handelspolitik+USA+Europa+aktuell&tbm=nws" target="_blank"><span class="search-btn-label">Handelspolitik USA · EU</span><span class="search-btn-sub">Aktueller Rahmen</span></a>
+    </div>
+  </div>
+</div>
+<div class="divider"></div>
+<div class="section" id="sec-social">
+  <div class="section-head" onclick="toggle('social')"><span class="section-icon">🔁</span><span class="section-title">Social & Debatte</span><span class="section-badge badge-green">Diskurs</span><span class="chevron">▾</span></div>
+  <div class="section-body">
+    <div class="search-grid">
+      <a class="search-btn" href="https://x.com/search?q=SPD+CDU+Koalition&f=live" target="_blank"><span class="search-btn-label">X — GroKo live</span><span class="search-btn-sub">Echtzeit-Debatte</span></a>
+      <a class="search-btn" href="https://x.com/search?q=Wirtschaftspolitik+Deutschland&f=live" target="_blank"><span class="search-btn-label">X — Wirtschaft live</span><span class="search-btn-sub">Aktuelle Diskussion</span></a>
+      <a class="search-btn" href="https://www.linkedin.com/feed/" target="_blank"><span class="search-btn-label">LinkedIn Feed</span><span class="search-btn-sub">Verbände, Staatssekretäre</span></a>
+      <a class="search-btn" href="https://bsky.app/search?q=SPD+CDU" target="_blank"><span class="search-btn-label">Bluesky</span><span class="search-btn-sub">Journalisten & Wissenschaftler</span></a>
+    </div>
+  </div>
+</div>
 </div>
 <div class="page" id="page-personen">
-  <div class="persons-page">
-    <div class="person-search-bar">
-      <input class="person-search-input" id="personSearchInput" type="text" placeholder="Weitere Person suchen…" />
-      <button class="search-go-btn" onclick="searchCustomPerson()">Suchen</button>
-    </div>
-    <div class="person-group">
-      <div class="person-group-title">SPD — Bundestagsfraktion</div>
-      <div id="personen-spd-fraktion"></div>
-    </div>
-    <div class="person-group">
-      <div class="person-group-title">SPD — Kabinett Merz</div>
-      <div id="personen-spd-minister"></div>
-    </div>
-    <div class="person-group">
-      <div class="person-group-title">CDU/CSU — Kabinett Merz</div>
-      <div id="personen-cdu-minister"></div>
-    </div>
-  </div>
+<div class="page-pad">
+  <div class="group-title">SPD — Bundestagsfraktion</div>
+  <a class="person-card" href="https://www.google.com/search?q=Matthias+Miersch+aktuell&tbm=nws" target="_blank"><div class="person-avatar av-spd">MM</div><div class="person-info"><div class="person-name">Dr. Matthias Miersch</div><div class="person-role">Fraktionsvorsitzender SPD-Bundestagsfraktion</div><span class="person-tag tag-spd">SPD</span></div><div class="person-arrow">›</div></a>
+  <a class="person-card" href="https://www.google.com/search?q=Siemtje+Möller+aktuell&tbm=nws" target="_blank"><div class="person-avatar av-spd">SM</div><div class="person-info"><div class="person-name">Siemtje Möller</div><div class="person-role">Stv. Fraktionsvors. (Außen, Verteidigung, Europa)</div><span class="person-tag tag-spd">SPD</span></div><div class="person-arrow">›</div></a>
+  <a class="person-card" href="https://www.google.com/search?q=Armand+Zorn+aktuell&tbm=nws" target="_blank"><div class="person-avatar av-spd">AZ</div><div class="person-info"><div class="person-name">Armand Zorn</div><div class="person-role">Stv. Fraktionsvors. (Wirtschaft, Energie, Digital)</div><span class="person-tag tag-spd">SPD</span></div><div class="person-arrow">›</div></a>
+  <a class="person-card" href="https://www.google.com/search?q=Wiebke+Esdar+aktuell&tbm=nws" target="_blank"><div class="person-avatar av-spd">WE</div><div class="person-info"><div class="person-name">Dr. Wiebke Esdar</div><div class="person-role">Stv. Fraktionsvors. (Haushalt, Finanzen, Kultur)</div><span class="person-tag tag-spd">SPD</span></div><div class="person-arrow">›</div></a>
+  <a class="person-card" href="https://www.google.com/search?q=Sonja+Eichwede+aktuell&tbm=nws" target="_blank"><div class="person-avatar av-spd">SE</div><div class="person-info"><div class="person-name">Sonja Eichwede</div><div class="person-role">Stv. Fraktionsvorsitzende</div><span class="person-tag tag-spd">SPD</span></div><div class="person-arrow">›</div></a>
+  <a class="person-card" href="https://www.google.com/search?q=Dagmar+Schmidt+SPD+aktuell&tbm=nws" target="_blank"><div class="person-avatar av-spd">DS</div><div class="person-info"><div class="person-name">Dagmar Schmidt</div><div class="person-role">Stv. Fraktionsvorsitzende</div><span class="person-tag tag-spd">SPD</span></div><div class="person-arrow">›</div></a>
+  <a class="person-card" href="https://www.google.com/search?q=Esra+Limbacher+aktuell&tbm=nws" target="_blank"><div class="person-avatar av-spd">EL</div><div class="person-info"><div class="person-name">Esra Limbacher</div><div class="person-role">Stv. Fraktionsvorsitzende</div><span class="person-tag tag-spd">SPD</span></div><div class="person-arrow">›</div></a>
+  <div class="group-title">SPD — Kabinett Merz</div>
+  <a class="person-card" href="https://www.google.com/search?q=Lars+Klingbeil+aktuell&tbm=nws" target="_blank"><div class="person-avatar av-spd">LK</div><div class="person-info"><div class="person-name">Lars Klingbeil</div><div class="person-role">Vizekanzler & Bundesfinanzminister</div><span class="person-tag tag-spd">SPD</span></div><div class="person-arrow">›</div></a>
+  <a class="person-card" href="https://www.google.com/search?q=Bärbel+Bas+aktuell&tbm=nws" target="_blank"><div class="person-avatar av-spd">BB</div><div class="person-info"><div class="person-name">Bärbel Bas</div><div class="person-role">Bundesministerin für Arbeit und Soziales</div><span class="person-tag tag-spd">SPD</span></div><div class="person-arrow">›</div></a>
+  <a class="person-card" href="https://www.google.com/search?q=Boris+Pistorius+aktuell&tbm=nws" target="_blank"><div class="person-avatar av-spd">BP</div><div class="person-info"><div class="person-name">Boris Pistorius</div><div class="person-role">Bundesminister der Verteidigung</div><span class="person-tag tag-spd">SPD</span></div><div class="person-arrow">›</div></a>
+  <a class="person-card" href="https://www.google.com/search?q=Verena+Hubertz+aktuell&tbm=nws" target="_blank"><div class="person-avatar av-spd">VH</div><div class="person-info"><div class="person-name">Verena Hubertz</div><div class="person-role">Bundesministerin für Wohnen und Bauen</div><span class="person-tag tag-spd">SPD</span></div><div class="person-arrow">›</div></a>
+  <a class="person-card" href="https://www.google.com/search?q=Stefanie+Hubig+aktuell&tbm=nws" target="_blank"><div class="person-avatar av-spd">SH</div><div class="person-info"><div class="person-name">Stefanie Hubig</div><div class="person-role">Bundesministerin der Justiz</div><span class="person-tag tag-spd">SPD</span></div><div class="person-arrow">›</div></a>
+  <a class="person-card" href="https://www.google.com/search?q=Reem+Alabali-Radovan+aktuell&tbm=nws" target="_blank"><div class="person-avatar av-spd">RA</div><div class="person-info"><div class="person-name">Reem Alabali-Radovan</div><div class="person-role">Bundesministerin wirtschaftliche Zusammenarbeit</div><span class="person-tag tag-spd">SPD</span></div><div class="person-arrow">›</div></a>
+  <a class="person-card" href="https://www.google.com/search?q=Carsten+Schneider+Minister+aktuell&tbm=nws" target="_blank"><div class="person-avatar av-spd">CS</div><div class="person-info"><div class="person-name">Carsten Schneider</div><div class="person-role">Bundesminister für Gesundheit</div><span class="person-tag tag-spd">SPD</span></div><div class="person-arrow">›</div></a>
+  <div class="group-title">CDU/CSU — Kabinett Merz</div>
+  <a class="person-card" href="https://www.google.com/search?q=Friedrich+Merz+aktuell&tbm=nws" target="_blank"><div class="person-avatar av-cdu">FM</div><div class="person-info"><div class="person-name">Friedrich Merz</div><div class="person-role">Bundeskanzler</div><span class="person-tag tag-cdu">CDU</span></div><div class="person-arrow">›</div></a>
+  <a class="person-card" href="https://www.google.com/search?q=Johann+Wadephul+aktuell&tbm=nws" target="_blank"><div class="person-avatar av-cdu">JW</div><div class="person-info"><div class="person-name">Johann Wadephul</div><div class="person-role">Bundesminister des Auswärtigen</div><span class="person-tag tag-cdu">CDU</span></div><div class="person-arrow">›</div></a>
+  <a class="person-card" href="https://www.google.com/search?q=Katherina+Reiche+Wirtschaftsministerin+aktuell&tbm=nws" target="_blank"><div class="person-avatar av-cdu">KR</div><div class="person-info"><div class="person-name">Katherina Reiche</div><div class="person-role">Bundesministerin für Wirtschaft und Energie</div><span class="person-tag tag-cdu">CDU</span></div><div class="person-arrow">›</div></a>
+  <a class="person-card" href="https://www.google.com/search?q=Alexander+Dobrindt+aktuell&tbm=nws" target="_blank"><div class="person-avatar av-csu">AD</div><div class="person-info"><div class="person-name">Alexander Dobrindt</div><div class="person-role">Bundesminister des Innern</div><span class="person-tag tag-csu">CSU</span></div><div class="person-arrow">›</div></a>
+  <a class="person-card" href="https://www.google.com/search?q=Thorsten+Frei+Kanzleramt+aktuell&tbm=nws" target="_blank"><div class="person-avatar av-cdu">TF</div><div class="person-info"><div class="person-name">Thorsten Frei</div><div class="person-role">Chef des Bundeskanzleramts</div><span class="person-tag tag-cdu">CDU</span></div><div class="person-arrow">›</div></a>
+</div>
 </div>
 <div class="page" id="page-quellen">
-  <div class="sources-page">
-    <div class="source-group-title">🔴 Pflichtquellen täglich</div>
-    <a class="source-link" href="https://www.tagesschau.de" target="_blank"><div class="source-link-name">Tagesschau</div><div class="source-link-desc">Top-3 Meldungen. Nachrichtenlage des Tages.</div><div class="source-link-url">tagesschau.de</div></a>
-    <a class="source-link" href="https://news.google.com/topics/CAAqJQgKIh9DQkFTRVFvSUwyMHZNRFZxYUdjU0JXVnVMVWRDR2dBUAE?hl=de&gl=DE&ceid=DE:de" target="_blank"><div class="source-link-name">Google News Deutschland</div><div class="source-link-desc">Top-5 Headlines scannen — Tagesagenda erfassen.</div><div class="source-link-url">news.google.com</div></a>
-    <a class="source-link" href="https://www.handelsblatt.com/politik" target="_blank"><div class="source-link-name">Handelsblatt Politik</div><div class="source-link-desc">Beste wirtschaftspolitische Tiefe.</div><div class="source-link-url">handelsblatt.com/politik</div></a>
-    <div class="source-group-title">📰 Leitmedien</div>
-    <a class="source-link" href="https://www.faz.net/aktuell/politik" target="_blank"><div class="source-link-name">FAZ — Politik</div><div class="source-link-desc">Wirtschaftsnah, konservativ-liberal.</div><div class="source-link-url">faz.net/aktuell/politik</div></a>
-    <a class="source-link" href="https://www.sueddeutsche.de/politik" target="_blank"><div class="source-link-name">Süddeutsche Zeitung</div><div class="source-link-desc">Starke Berlin-Korrespondenz.</div><div class="source-link-url">sueddeutsche.de/politik</div></a>
-    <div class="source-group-title">🌍 Europa & International</div>
-    <a class="source-link" href="https://www.politico.eu/newsletter/playbook/" target="_blank"><div class="source-link-name">Politico Europe Playbook</div><div class="source-link-desc">Täglich 6 Uhr. Europäischer Pulse in 2 Minuten.</div><div class="source-link-url">politico.eu</div></a>
-    <a class="source-link" href="https://www.ft.com/europe" target="_blank"><div class="source-link-name">Financial Times — Europe</div><div class="source-link-desc">Internationale Einordnung deutscher Wirtschaftspolitik.</div><div class="source-link-url">ft.com/europe</div></a>
-    <div class="source-group-title">🏛️ Primärquellen</div>
-    <a class="source-link" href="https://www.bundestag.de/tagesordnung" target="_blank"><div class="source-link-name">Bundestag — Tagesordnung</div><div class="source-link-desc">Was wird heute verhandelt?</div><div class="source-link-url">bundestag.de/tagesordnung</div></a>
-    <a class="source-link" href="https://www.spdfraktion.de" target="_blank"><div class="source-link-name">SPD-Bundestagsfraktion</div><div class="source-link-desc">Pressemitteilungen, Fraktionspositionen.</div><div class="source-link-url">spdfraktion.de</div></a>
-    <a class="source-link" href="https://www.cducsu.de" target="_blank"><div class="source-link-name">CDU/CSU-Fraktion</div><div class="source-link-desc">Fraktionsaktivitäten, Pressemitteilungen.</div><div class="source-link-url">cducsu.de</div></a>
-    <div class="source-group-title">🔁 Social Media</div>
-    <a class="source-link" href="https://x.com/search?q=SPD+CDU+Koalition&f=live" target="_blank"><div class="source-link-name">X — Koalitions-Suche live</div><div class="source-link-desc">Echtzeit-Debatte.</div><div class="source-link-url">x.com</div></a>
-    <a class="source-link" href="https://www.linkedin.com/feed/" target="_blank"><div class="source-link-name">LinkedIn — Politischer Feed</div><div class="source-link-desc">Wirtschaftsverbände, Staatssekretäre, Think-Tanks.</div><div class="source-link-url">linkedin.com</div></a>
-  </div>
+<div class="page-pad">
+  <div class="group-title">🔴 Pflichtquellen täglich</div>
+  <a class="source-link" href="https://www.tagesschau.de" target="_blank"><div class="source-name">Tagesschau</div><div class="source-desc">Top-3 Meldungen. Nachrichtenlage des Tages.</div><div class="source-url">tagesschau.de</div></a>
+  <a class="source-link" href="https://news.google.com/topics/CAAqJQgKIh9DQkFTRVFvSUwyMHZNRFZxYUdjU0JXVnVMVWRDR2dBUAE?hl=de&gl=DE&ceid=DE:de" target="_blank"><div class="source-name">Google News Deutschland</div><div class="source-desc">Top-5 Headlines scannen — Tagesagenda erfassen.</div><div class="source-url">news.google.com</div></a>
+  <a class="source-link" href="https://www.handelsblatt.com/politik" target="_blank"><div class="source-name">Handelsblatt Politik</div><div class="source-desc">Beste wirtschaftspolitische Tiefe.</div><div class="source-url">handelsblatt.com/politik</div></a>
+  <div class="group-title">📰 Leitmedien</div>
+  <a class="source-link" href="https://www.faz.net/aktuell/politik" target="_blank"><div class="source-name">FAZ — Politik</div><div class="source-desc">Wirtschaftsnah, konservativ-liberal.</div><div class="source-url">faz.net/aktuell/politik</div></a>
+  <a class="source-link" href="https://www.sueddeutsche.de/politik" target="_blank"><div class="source-name">Süddeutsche Zeitung</div><div class="source-desc">Starke Berlin-Korrespondenz.</div><div class="source-url">sueddeutsche.de/politik</div></a>
+  <div class="group-title">🌍 Europa & International</div>
+  <a class="source-link" href="https://www.politico.eu/newsletter/playbook/" target="_blank"><div class="source-name">Politico Europe Playbook</div><div class="source-desc">Täglich 6 Uhr. Newsletter abonnieren.</div><div class="source-url">politico.eu</div></a>
+  <a class="source-link" href="https://www.ft.com/europe" target="_blank"><div class="source-name">Financial Times — Europe</div><div class="source-desc">Internationale Einordnung deutscher Wirtschaftspolitik.</div><div class="source-url">ft.com/europe</div></a>
+  <div class="group-title">🏛️ Primärquellen</div>
+  <a class="source-link" href="https://www.bundestag.de/tagesordnung" target="_blank"><div class="source-name">Bundestag — Tagesordnung</div><div class="source-desc">Was wird heute verhandelt?</div><div class="source-url">bundestag.de/tagesordnung</div></a>
+  <a class="source-link" href="https://www.spdfraktion.de" target="_blank"><div class="source-name">SPD-Bundestagsfraktion</div><div class="source-desc">Pressemitteilungen, Fraktionspositionen.</div><div class="source-url">spdfraktion.de</div></a>
+  <a class="source-link" href="https://www.cducsu.de" target="_blank"><div class="source-name">CDU/CSU-Fraktion</div><div class="source-desc">Fraktionsaktivitäten, Pressemitteilungen.</div><div class="source-url">cducsu.de</div></a>
+  <div class="group-title">🔁 Social Media</div>
+  <a class="source-link" href="https://x.com/search?q=SPD+CDU+Koalition&f=live" target="_blank"><div class="source-name">X — Koalitions-Suche live</div><div class="source-desc">Echtzeit-Debatte.</div><div class="source-url">x.com</div></a>
+  <a class="source-link" href="https://www.linkedin.com/feed/" target="_blank"><div class="source-name">LinkedIn — Politischer Feed</div><div class="source-desc">Wirtschaftsverbände, Staatssekretäre, Think-Tanks.</div><div class="source-url">linkedin.com</div></a>
 </div>
-<div class="overlay" id="personOverlay">
-  <div class="overlay-header">
-    <button class="overlay-back" onclick="closeOverlay()">← Zurück</button>
-    <span class="overlay-title" id="overlayTitle"></span>
-  </div>
-  <div class="overlay-content"><div id="overlayBody"></div></div>
-</div>
-<div class="timer-bar" id="timerBar" style="display:none">
-  <span class="timer-label">Lesezeit</span>
-  <div class="timer-track"><div class="timer-fill" id="timerFill"></div></div>
-  <div class="timer-count" id="timerCount">15:00</div>
 </div>
 <script>
-const PERSONS={'spd-fraktion':[{name:'Dr. Matthias Miersch',role:'Fraktionsvorsitzender SPD-Bundestagsfraktion',party:'SPD',initials:'MM'},{name:'Lars Klingbeil',role:'Vizekanzler & Bundesfinanzminister',party:'SPD',initials:'LK'},{name:'Bärbel Bas',role:'Bundesministerin für Arbeit und Soziales',party:'SPD',initials:'BB'},{name:'Siemtje Möller',role:'Stv. Fraktionsvorsitzende (Außen, Verteidigung, Europa)',party:'SPD',initials:'SM'},{name:'Armand Zorn',role:'Stv. Fraktionsvorsitzender (Wirtschaft, Energie, Digital)',party:'SPD',initials:'AZ'},{name:'Dr. Wiebke Esdar',role:'Stv. Fraktionsvorsitzende (Haushalt, Finanzen, Kultur)',party:'SPD',initials:'WE'},{name:'Sonja Eichwede',role:'Stv. Fraktionsvorsitzende',party:'SPD',initials:'SE'},{name:'Dagmar Schmidt',role:'Stv. Fraktionsvorsitzende',party:'SPD',initials:'DS'},{name:'Esra Limbacher',role:'Stv. Fraktionsvorsitzende',party:'SPD',initials:'EL'}],'spd-minister':[{name:'Lars Klingbeil',role:'Vizekanzler & Bundesfinanzminister',party:'SPD',initials:'LK'},{name:'Bärbel Bas',role:'Bundesministerin für Arbeit und Soziales',party:'SPD',initials:'BB'},{name:'Boris Pistorius',role:'Bundesminister der Verteidigung',party:'SPD',initials:'BP'},{name:'Verena Hubertz',role:'Bundesministerin für Wohnen und Bauen',party:'SPD',initials:'VH'},{name:'Stefanie Hubig',role:'Bundesministerin der Justiz',party:'SPD',initials:'SH'},{name:'Reem Alabali-Radovan',role:'Bundesministerin für wirtschaftliche Zusammenarbeit',party:'SPD',initials:'RA'},{name:'Carsten Schneider',role:'Bundesminister für Gesundheit',party:'SPD',initials:'CS'}],'cdu-minister':[{name:'Friedrich Merz',role:'Bundeskanzler (CDU)',party:'CDU',initials:'FM'},{name:'Johann Wadephul',role:'Bundesminister des Auswärtigen (CDU)',party:'CDU',initials:'JW'},{name:'Katherina Reiche',role:'Bundesministerin für Wirtschaft und Energie (CDU)',party:'CDU',initials:'KR'},{name:'Alexander Dobrindt',role:'Bundesminister des Innern (CSU)',party:'CSU',initials:'AD'},{name:'Karin Prien',role:'Bundesministerin für Bildung (CDU)',party:'CDU',initials:'KP'},{name:'Karsten Wildberger',role:'Bundesminister für Digitales (CDU)',party:'CDU',initials:'KW'},{name:'Thorsten Frei',role:'Chef des Bundeskanzleramts (CDU)',party:'CDU',initials:'TF'}]};
-const SYSTEM=`Du bist ein präziser politischer Analyst für eine deutsche Entscheidungsträgerin. Antworte auf Deutsch. Max. 150 Wörter. Nutze **Fettschrift** für wichtige Begriffe. Keine Floskeln. Fokus: Wirtschaftspolitik, Arbeitsmarkt, Entbürokratisierung, SPD, CDU, Große Koalition. Datum: ${new Date().toLocaleDateString('de-DE')}.`;
-const TASKS=[{id:'wirtschaft',icon:'📊',title:'Wirtschaft & Arbeitsmarkt',badge:'badge-red',badgeText:'Kernthema',color:'',prompt:'Suche aktuelle Nachrichten zu: deutsche Wirtschaftspolitik, Arbeitsmarktpolitik, Konjunktur, Mindestlohn, Bürgergeld. Die 2-3 wichtigsten Entwicklungen mit Fakten und Politikern.'},{id:'buerokratie',icon:'✂️',title:'Entbürokratisierung',badge:'badge-gold',badgeText:'Fokus',color:'gold',prompt:'Suche aktuelle Nachrichten zu: Bürokratieabbau Deutschland, Entbürokratisierungsgesetz, Verwaltungsreform. Was ist in Diskussion oder wurde beschlossen?'},{id:'koalition',icon:'🏛️',title:'Große Koalition & Parteien',badge:'badge-gold',badgeText:'SPD · CDU',color:'gold',prompt:'Suche aktuelle Nachrichten zu: SPD Fraktion Miersch, CDU Merz, Große Koalition, Koalitionsstreit oder -einigung. Aktuelle Spannungen und Kompromisse.'},{id:'europa',icon:'🌍',title:'Europa & Welt',badge:'badge-blue',badgeText:'International',color:'blue',prompt:'Suche aktuelle Nachrichten zu: EU Wirtschaftspolitik Deutschland, Europäische Kommission, Handelspolitik. Relevanter internationaler Kontext.'},{id:'debatte',icon:'💬',title:'Debattenlage heute',badge:'badge-green',badgeText:'Diskurs',color:'green',prompt:'Suche: Bundestag Tagesordnung heute, politische Debatte Deutschland aktuell, Streitthemen SPD CDU. Überblick Diskurslage Berlin.'}];
-let timerInterval=null;
-function init(){document.getElementById('headerDate').textContent=new Date().toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long',year:'numeric'});renderGroup('spd-fraktion');renderGroup('spd-minister');renderGroup('cdu-minister');document.getElementById('personSearchInput').addEventListener('keydown',e=>{if(e.key==='Enter')searchCustomPerson();});}
-function renderGroup(id){const el=document.getElementById('personen-'+id);if(!el)return;el.innerHTML=PERSONS[id].map(p=>{const ac=p.party==='SPD'?'avatar-spd':p.party==='CSU'?'avatar-csu':'avatar-cdu';const tc=p.party==='SPD'?'tag-spd':p.party==='CSU'?'tag-csu':'tag-cdu';return`<div class="person-card" onclick="loadPerson('${p.name.replace(/'/g,"\\'")}')"><div class="person-avatar ${ac}">${p.initials}</div><div class="person-info"><div class="person-name">${p.name}</div><div class="person-role">${p.role}</div><span class="person-tag ${tc}">${p.party}</span></div><div class="person-arrow">›</div></div>`;}).join('');}
 function showPage(id,tab){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.getElementById('page-'+id).classList.add('active');tab.classList.add('active');}
-async function loadPerson(name){document.getElementById('overlayTitle').textContent=name;document.getElementById('overlayBody').innerHTML=`<div class="overlay-loading">Suche Informationen zu ${name}…</div>`;document.getElementById('personOverlay').classList.add('open');try{const txt=await callClaude(`Suche aktuelle Nachrichten zu "${name}" (deutsche Politik). Was hat diese Person zuletzt politisch gesagt oder getan? Positionen zu Wirtschaftspolitik, Koalition?`,SYSTEM);document.getElementById('overlayBody').innerHTML=`<div class="overlay-result">${renderText(txt)}</div>`;}catch(e){document.getElementById('overlayBody').innerHTML=`<div class="overlay-result" style="color:var(--muted)">Nicht geladen. Internetverbindung prüfen.</div>`;}}
-function searchCustomPerson(){const v=document.getElementById('personSearchInput').value.trim();if(v)loadPerson(v);}
-function closeOverlay(){document.getElementById('personOverlay').classList.remove('open');}
-async function callClaude(prompt,system){const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system,tools:[{type:'web_search_20250305',name:'web_search'}],messages:[{role:'user',content:prompt}]})});if(!r.ok)throw new Error('API '+r.status);const d=await r.json();return d.content.map(b=>b.type==='text'?b.text:'').filter(Boolean).join('\n');}
-function renderText(raw){return raw.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/^### (.+)$/gm,'<h3>$1</h3>').replace(/^## (.+)$/gm,'<h3>$1</h3>').replace(/\n\n/g,'</p><p style="margin-top:10px">').replace(/\n/g,'<br>');}
-function setStatus(s,t){document.getElementById('statusDot').className='status-dot '+s;document.getElementById('statusText').textContent=t;}
-function setProgress(p){document.getElementById('progressFill').style.width=p+'%';}
-function startTimer(){document.getElementById('timerBar').style.display='flex';let s=900;clearInterval(timerInterval);timerInterval=setInterval(()=>{s--;document.getElementById('timerCount').textContent=Math.floor(s/60)+':'+String(s%60).padStart(2,'0');document.getElementById('timerFill').style.width=((900-s)/900*100)+'%';if(s<=0){clearInterval(timerInterval);document.getElementById('timerCount').textContent='✓';}},1000);}
-async function startBriefing(){const btn=document.getElementById('mainBtn'),btnT=document.getElementById('btnText'),pb=document.getElementById('progressBar'),area=document.getElementById('sectionsArea');btn.disabled=true;btnT.textContent='Analysiere…';pb.classList.add('visible');setStatus('loading','Lädt…');document.getElementById('welcomeState')?.remove();area.querySelectorAll('.sources-note').forEach(e=>e.remove());for(let i=0;i<TASKS.length;i++){const t=TASKS[i];setProgress((i/TASKS.length)*85);btnT.textContent=t.icon+' '+t.title+'…';setStatus('loading',(i+1)+'/'+TASKS.length);const sid='skel-'+t.id,rid='sec-'+t.id;if(!document.getElementById(sid)&&!document.getElementById(rid)){const sk=document.createElement('div');sk.className='section visible';sk.id=sid;sk.innerHTML=`<div class="section-header"><span class="section-icon">${t.icon}</span><span class="section-title">${t.title}</span><span class="section-badge ${t.badge}">${t.badgeText}</span></div><div class="section-body"><div class="summary-card ${t.color}" style="padding:14px"><div class="skeleton medium"></div><div class="skeleton"></div><div class="skeleton short"></div></div></div>`;area.appendChild(sk);}try{const txt=await callClaude(t.prompt,SYSTEM);const sec=document.createElement('div');sec.className='section';sec.id=rid;sec.innerHTML=`<div class="section-header" onclick="toggleSec('${t.id}')"><span class="section-icon">${t.icon}</span><span class="section-title">${t.title}</span><span class="section-badge ${t.badge}">${t.badgeText}</span><span class="section-chevron">▾</span></div><div class="section-body"><div class="summary-card ${t.color}"><div class="summary-label">KI-Zusammenfassung · ${new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})} Uhr</div><div class="summary-text">${renderText(txt)}</div></div></div>`;const sk=document.getElementById(sid);if(sk)area.replaceChild(sec,sk);else area.appendChild(sec);setTimeout(()=>sec.classList.add('visible'),50);}catch(e){const sk=document.getElementById(sid);if(sk)sk.querySelector('.summary-card').innerHTML='<div style="font-size:12px;color:var(--muted)">Nicht geladen. Bitte erneut versuchen.</div>';}await new Promise(r=>setTimeout(r,150));}const note=document.createElement('div');note.className='sources-note';note.textContent=`Live-Websuche via KI · ${new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})} Uhr`;area.appendChild(note);setProgress(100);setStatus('live','Aktuell');btn.disabled=false;btnT.textContent='↺ Briefing aktualisieren';startTimer();setTimeout(()=>{pb.classList.remove('visible');setProgress(0);},1000);}
-function toggleSec(id){document.getElementById('sec-'+id)?.classList.toggle('collapsed');}
-init();
+function toggle(id){document.getElementById('sec-'+id).classList.toggle('collapsed');}
+function updateClock(){const now=new Date();document.getElementById('headerTime').textContent=now.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});document.getElementById('headerDate').textContent=now.toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'});}
+updateClock();setInterval(updateClock,30000);
 </script>
 </body>
 </html>
